@@ -1,24 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="BmVvs87cvK7QM5TbFTA4JD84SW37YZTM6IUndhOr6KM" />
   <title>InterviewAI — AI Mock Interview Practice Platform</title>
-  <meta name="description" content="AI-powered mock interview practice platform. Practice realistic technical and HR interviews, analyze answers with Gemini AI, track facial and eye metrics, and build confidence.">
+  <meta name="description"
+    content="AI-powered mock interview practice platform. Practice realistic technical and HR interviews, analyze answers with Gemini AI, track facial and eye metrics, and build confidence.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
+
+
 <body>
+  <script src="../JS/camera.js"></script>
+  <script src="../JS/dashboard.js"></script>
+
 
   <!-- ================= NAVBAR ================= -->
   <header class="navbar" id="navbar">
     <div class="nav-container">
       <a href="#hero" class="brand" aria-label="InterviewAI Home">
         <span class="brand-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
             <line x1="8" y1="21" x2="16" y2="21"></line>
             <line x1="12" y1="17" x2="12" y2="21"></line>
@@ -39,9 +49,11 @@
       </nav>
 
       <div class="nav-actions">
-        <button type="button" class="btn btn-ghost" id="loginNavBtn">Login</button>
+        <button type="button" class="btn btn-ghost" id="loginNavBtn"
+          onclick="window.location.href='login.html'">Login</button>
         <button type="button" class="btn btn-primary" id="startNavBtn">Get Started</button>
-        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation Menu"
+          aria-expanded="false">
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
@@ -68,12 +80,15 @@
           </h1>
 
           <p class="hero-subtitle">
-            An AI-powered mock interview platform that generates realistic questions, evaluates your answers, and helps you improve with every interview.
+            An AI-powered mock interview platform that generates realistic questions, evaluates your answers, and helps
+            you improve with every interview.
           </p>
 
           <div class="hero-cta-group">
             <button type="button" class="btn btn-primary btn-lg" id="heroStartBtn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
               Start Mock Interview
             </button>
             <a href="#how-it-works" class="btn btn-secondary btn-lg">
@@ -134,7 +149,10 @@
               <div class="preview-answer-box">
                 <div class="preview-label">CANDIDATE ANSWER INPUT</div>
                 <div class="preview-code-sim">
-                  Event delegation is a technique where we attach a single event listener to a parent element rather than attaching individual listeners to each child. When a child event triggers, it bubbles up to the parent where <span class="syntax-keyword">event.target</span> inspects which element originated the event...
+                  Event delegation is a technique where we attach a single event listener to a parent element rather
+                  than attaching individual listeners to each child. When a child event triggers, it bubbles up to the
+                  parent where <span class="syntax-keyword">event.target</span> inspects which element originated the
+                  event...
                   <span class="cursor-blink">|</span>
                 </div>
               </div>
@@ -161,7 +179,8 @@
           <div class="section-tag">WHY THIS PLATFORM</div>
           <h2 class="section-title">Built for Precision, Realism, and Growth</h2>
           <p class="section-subtitle">
-            Engineered to simulate authentic technical and behavioral rounds through rigorous AI evaluation and real-time monitoring.
+            Engineered to simulate authentic technical and behavioral rounds through rigorous AI evaluation and
+            real-time monitoring.
           </p>
         </div>
 
@@ -173,7 +192,8 @@
             </div>
             <h3 class="feature-title">AI Question Generation</h3>
             <p class="feature-desc">
-              Generates context-aware, role-specific questions across Frontend, Backend, Full Stack, and HR rounds tailored to your chosen difficulty level.
+              Generates context-aware, role-specific questions across Frontend, Backend, Full Stack, and HR rounds
+              tailored to your chosen difficulty level.
             </p>
             <ul class="feature-list">
               <li>Configurable difficulty (Junior, Mid, Senior)</li>
@@ -189,7 +209,8 @@
             </div>
             <h3 class="feature-title">AI Answer Evaluation</h3>
             <p class="feature-desc">
-              Instant feedback parsing conceptual correctness, relevance, communication clarity, and concrete improvement opportunities.
+              Instant feedback parsing conceptual correctness, relevance, communication clarity, and concrete
+              improvement opportunities.
             </p>
             <ul class="feature-list">
               <li>Rubric-based 0 to 10 scoring</li>
@@ -205,7 +226,8 @@
             </div>
             <h3 class="feature-title">Face &amp; Eye Analysis</h3>
             <p class="feature-desc">
-              Integrated with MediaPipe vision standards to compute presence, eye gaze consistency, head orientation, and behavioral confidence signals.
+              Integrated with MediaPipe vision standards to compute presence, eye gaze consistency, head orientation,
+              and behavioral confidence signals.
             </p>
             <ul class="feature-list">
               <li>100% client-side privacy preserved</li>
@@ -221,7 +243,8 @@
             </div>
             <h3 class="feature-title">Performance Tracking</h3>
             <p class="feature-desc">
-              Comprehensive interview archives with historical scores, trend visualization, and role breakdown stored in persistent session storage.
+              Comprehensive interview archives with historical scores, trend visualization, and role breakdown stored in
+              persistent session storage.
             </p>
             <ul class="feature-list">
               <li>Historical attempt logs</li>
@@ -432,7 +455,8 @@
           <div class="section-tag">CANDIDATE DASHBOARD</div>
           <h2 class="section-title">Track Every Milestones with Analytics</h2>
           <p class="section-subtitle">
-            Preview the candidate telemetry console. Track progress over time, review past transcripts, and pinpoint improvement areas.
+            Preview the candidate telemetry console. Track progress over time, review past transcripts, and pinpoint
+            improvement areas.
           </p>
         </div>
 
@@ -497,8 +521,9 @@
                   <h4 class="dash-card-title">Overall Readiness Assessment</h4>
                   <span class="badge-status">84% READY</span>
                 </div>
-                <p class="dash-text">Calculated from 12 completed sessions including technical accuracy, response structure, and behavioral composure.</p>
-                
+                <p class="dash-text">Calculated from 12 completed sessions including technical accuracy, response
+                  structure, and behavioral composure.</p>
+
                 <div class="progress-bar-container">
                   <div class="progress-bar-fill" style="width: 84%;"></div>
                 </div>
@@ -578,7 +603,9 @@
             <div class="section-tag">ACADEMIC &amp; ENGINEERING FOUNDATION</div>
             <h2 class="about-title">Designed for Real Engineering Interviews</h2>
             <p class="about-text">
-              Traditional mock interviews are expensive, infrequent, and rarely offer structured diagnostic feedback. <strong>InterviewAI</strong> combines Google Gemini's cognitive evaluation models with MediaPipe computer vision metrics to provide unlimited, reliable practice rounds right from your browser.
+              Traditional mock interviews are expensive, infrequent, and rarely offer structured diagnostic feedback.
+              <strong>InterviewAI</strong> combines Google Gemini's cognitive evaluation models with MediaPipe computer
+              vision metrics to provide unlimited, reliable practice rounds right from your browser.
             </p>
             <div class="tech-pills">
               <span class="tech-pill">Google Gemini API</span>
@@ -679,7 +706,7 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- ================= AUTH MODALS ================= -->
-  
+
   <!-- Login Modal -->
   <div class="modal-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle" hidden>
     <div class="modal-card">
@@ -688,13 +715,15 @@
           <h3 class="modal-title" id="loginTitle">Candidate Login</h3>
           <p class="modal-subtitle">Access your interview logs and performance telemetry</p>
         </div>
-        <button type="button" class="modal-close" data-close-modal="loginModal" aria-label="Close modal">&times;</button>
+        <button type="button" class="modal-close" data-close-modal="loginModal"
+          aria-label="Close modal">&times;</button>
       </div>
 
       <form id="loginForm" class="modal-form" novalidate>
         <div class="form-group">
           <label for="loginEmail" class="form-label">Email Address</label>
-          <input type="email" id="loginEmail" class="form-input" placeholder="candidate@example.com" required autocomplete="email">
+          <input type="email" id="loginEmail" class="form-input" placeholder="candidate@example.com" required
+            autocomplete="email">
           <span class="form-error" id="loginEmailError"></span>
         </div>
 
@@ -703,7 +732,8 @@
             <label for="loginPassword" class="form-label">Password</label>
             <a href="#" class="form-link" id="forgotPasswordBtn">Forgot Password?</a>
           </div>
-          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required
+            autocomplete="current-password">
           <span class="form-error" id="loginPasswordError"></span>
         </div>
 
@@ -734,7 +764,8 @@
           <h3 class="modal-title" id="registerTitle">Create Account</h3>
           <p class="modal-subtitle">Start your targeted mock interview preparation</p>
         </div>
-        <button type="button" class="modal-close" data-close-modal="registerModal" aria-label="Close modal">&times;</button>
+        <button type="button" class="modal-close" data-close-modal="registerModal"
+          aria-label="Close modal">&times;</button>
       </div>
 
       <form id="registerForm" class="modal-form" novalidate>
@@ -746,7 +777,8 @@
 
         <div class="form-group">
           <label for="regEmail" class="form-label">Email Address</label>
-          <input type="email" id="regEmail" class="form-input" placeholder="alex@example.com" required autocomplete="email">
+          <input type="email" id="regEmail" class="form-input" placeholder="alex@example.com" required
+            autocomplete="email">
           <span class="form-error" id="regEmailError"></span>
         </div>
 
@@ -764,13 +796,15 @@
 
         <div class="form-group">
           <label for="regPassword" class="form-label">Password (Min. 6 chars)</label>
-          <input type="password" id="regPassword" class="form-input" placeholder="••••••••" required autocomplete="new-password">
+          <input type="password" id="regPassword" class="form-input" placeholder="••••••••" required
+            autocomplete="new-password">
           <span class="form-error" id="regPasswordError"></span>
         </div>
 
         <div class="form-group">
           <label for="regConfirmPassword" class="form-label">Confirm Password</label>
-          <input type="password" id="regConfirmPassword" class="form-input" placeholder="••••••••" required autocomplete="new-password">
+          <input type="password" id="regConfirmPassword" class="form-input" placeholder="••••••••" required
+            autocomplete="new-password">
           <span class="form-error" id="regConfirmPasswordError"></span>
         </div>
 
@@ -794,7 +828,8 @@
           <h3 class="modal-title" id="setupTitle">Configure Mock Interview</h3>
           <p class="modal-subtitle">Calibrate session parameters before initiating camera stream</p>
         </div>
-        <button type="button" class="modal-close" data-close-modal="setupModal" aria-label="Close modal">&times;</button>
+        <button type="button" class="modal-close" data-close-modal="setupModal"
+          aria-label="Close modal">&times;</button>
       </div>
 
       <form id="setupForm" class="modal-form">
@@ -842,7 +877,8 @@
         <div class="setup-notice">
           <div class="notice-icon">📷</div>
           <div class="notice-text">
-            <strong>Webcam Permission:</strong> When you start, your browser will prompt for camera access. The camera feed stays locally in your browser for live posture and eye alignment metrics.
+            <strong>Webcam Permission:</strong> When you start, your browser will prompt for camera access. The camera
+            feed stays locally in your browser for live posture and eye alignment metrics.
           </div>
         </div>
 
@@ -856,7 +892,7 @@
   <!-- ================= ACTIVE INTERVIEW SCREEN (FULLSCREEN VIEW) ================= -->
   <div class="interview-overlay" id="interviewScreen" hidden>
     <div class="interview-viewport">
-      
+
       <!-- Top Navigation & Status Bar -->
       <header class="interview-topbar">
         <div class="interview-top-left">
@@ -891,7 +927,7 @@
 
       <!-- Main Split Workstation -->
       <div class="interview-workspace">
-        
+
         <!-- Left: Question & Answer Console -->
         <section class="interview-left-pane">
           <div class="pane-card question-pane">
@@ -924,19 +960,17 @@
               </div>
             </div>
 
-            <textarea 
-              id="candidateAnswerInput" 
-              class="answer-textarea" 
+            <textarea id="candidateAnswerInput" class="answer-textarea"
               placeholder="Structure your answer clearly. Mention technical concepts, real-world examples, and underlying architectural trade-offs..."
-              rows="9"
-            ></textarea>
+              rows="9"></textarea>
 
             <div class="answer-action-bar">
               <div class="answer-tools">
                 <button type="button" class="btn btn-ghost btn-sm" id="clearAnswerBtn" title="Clear current answer">
                   Clear
                 </button>
-                <button type="button" class="btn btn-ghost btn-sm" id="sampleAnswerBtn" title="Insert a solid sample response for demonstration">
+                <button type="button" class="btn btn-ghost btn-sm" id="sampleAnswerBtn"
+                  title="Insert a solid sample response for demonstration">
                   Insert Sample Answer
                 </button>
               </div>
@@ -1004,7 +1038,8 @@
                 <div class="fallback-icon">📷</div>
                 <div class="fallback-title">Camera Feed Inactive</div>
                 <div class="fallback-desc" id="cameraFallbackMessage">
-                  Click 'Request Camera' below or allow webcam permissions to activate real-time MediaPipe face &amp; gaze tracking.
+                  Click 'Request Camera' below or allow webcam permissions to activate real-time MediaPipe face &amp;
+                  gaze tracking.
                 </div>
                 <button type="button" class="btn btn-secondary btn-sm" id="retryCameraBtn">
                   Request Camera Access
@@ -1018,12 +1053,16 @@
                 <div class="vision-col">
                   <div class="metric-lbl">EYE CONTACT</div>
                   <div class="metric-val" id="metricEyeVal">92%</div>
-                  <div class="metric-bar"><div class="metric-fill" id="metricEyeBar" style="width: 92%;"></div></div>
+                  <div class="metric-bar">
+                    <div class="metric-fill" id="metricEyeBar" style="width: 92%;"></div>
+                  </div>
                 </div>
                 <div class="vision-col">
                   <div class="metric-lbl">FACE PRESENCE</div>
                   <div class="metric-val" id="metricFaceVal">98%</div>
-                  <div class="metric-bar"><div class="metric-fill" id="metricFaceBar" style="width: 98%;"></div></div>
+                  <div class="metric-bar">
+                    <div class="metric-fill" id="metricFaceBar" style="width: 98%;"></div>
+                  </div>
                 </div>
               </div>
 
@@ -1052,19 +1091,22 @@
   </div>
 
   <!-- ================= RESULT REPORT SCREEN (MODAL / FULL VIEW) ================= -->
-  <div class="modal-overlay result-modal-overlay" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle" hidden>
+  <div class="modal-overlay result-modal-overlay" id="resultModal" role="dialog" aria-modal="true"
+    aria-labelledby="resultTitle" hidden>
     <div class="result-card">
       <div class="result-header">
         <div class="result-header-left">
           <div class="result-badge">PERFORMANCE EVALUATION REPORT</div>
           <h2 class="result-title" id="resultTitle">Interview Completed</h2>
-          <p class="result-subtitle" id="resultSubtitle">Detailed diagnostic scoring evaluated by Gemini AI &amp; MediaPipe signals</p>
+          <p class="result-subtitle" id="resultSubtitle">Detailed diagnostic scoring evaluated by Gemini AI &amp;
+            MediaPipe signals</p>
         </div>
-        <button type="button" class="modal-close" data-close-modal="resultModal" aria-label="Close modal">&times;</button>
+        <button type="button" class="modal-close" data-close-modal="resultModal"
+          aria-label="Close modal">&times;</button>
       </div>
 
       <div class="result-body">
-        
+
         <!-- Score Highlights Banner -->
         <div class="result-score-banner">
           <div class="score-circle">
@@ -1079,7 +1121,9 @@
                 <span class="metric-label">Technical Knowledge</span>
                 <span class="metric-score" id="resultTechScore">8.6 / 10</span>
               </div>
-              <div class="result-meter"><div class="meter-bar" id="resultTechBar" style="width: 86%;"></div></div>
+              <div class="result-meter">
+                <div class="meter-bar" id="resultTechBar" style="width: 86%;"></div>
+              </div>
             </div>
 
             <div class="score-metric-item">
@@ -1087,7 +1131,9 @@
                 <span class="metric-label">Communication &amp; Clarity</span>
                 <span class="metric-score" id="resultCommScore">8.0 / 10</span>
               </div>
-              <div class="result-meter"><div class="meter-bar" id="resultCommBar" style="width: 80%;"></div></div>
+              <div class="result-meter">
+                <div class="meter-bar" id="resultCommBar" style="width: 80%;"></div>
+              </div>
             </div>
 
             <div class="score-metric-item">
@@ -1095,7 +1141,9 @@
                 <span class="metric-label">Answer Relevance</span>
                 <span class="metric-score" id="resultRelevanceScore">8.5 / 10</span>
               </div>
-              <div class="result-meter"><div class="meter-bar" id="resultRelevanceBar" style="width: 85%;"></div></div>
+              <div class="result-meter">
+                <div class="meter-bar" id="resultRelevanceBar" style="width: 85%;"></div>
+              </div>
             </div>
 
             <div class="score-metric-item">
@@ -1103,7 +1151,9 @@
                 <span class="metric-label">Eye Contact Alignment</span>
                 <span class="metric-score" id="resultEyeScore">90%</span>
               </div>
-              <div class="result-meter"><div class="meter-bar" id="resultEyeBar" style="width: 90%;"></div></div>
+              <div class="result-meter">
+                <div class="meter-bar" id="resultEyeBar" style="width: 90%;"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1163,4 +1213,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>

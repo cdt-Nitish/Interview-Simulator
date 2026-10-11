@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | InterviewAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .auth-page { width: min(100%, 480px); }
+    .auth-brand { display:flex; justify-content:center; margin-bottom:24px; text-decoration:none; }
+    .auth-card { padding: clamp(24px, 5vw, 40px); border: 1px solid var(--border-color, #263244); border-radius: 18px; background: var(--surface-color, #111827); }
+    .auth-tabs { display:flex; gap:8px; margin: 22px 0; }
+    .auth-tabs button { flex:1; }
+    .auth-form[hidden], .auth-message[hidden], #logoutPanel[hidden] { display:none !important; }
+    .auth-form { display:grid; gap:16px; }
+    .auth-form label { display:block; margin-bottom:7px; }
+    .auth-form input, .auth-form select { width:100%; }
+    .auth-message { margin-top:16px; padding:12px; border-radius:8px; }
+    .auth-back { display:block; text-align:center; margin-top:20px; }
+    .auth-note { font-size:.88rem; opacity:.8; line-height:1.5; margin-top:18px; }
+  </style>
+</head>
+<body>
+  <main class="auth-page">
+    <a class="brand auth-brand" href="index.html" aria-label="InterviewAI Home">
+      <span class="brand-text">Interview<span class="brand-accent">AI</span></span>
+    </a>
+    <section class="auth-card">
+      <div id="authForms">
+        <div class="section-tag">CANDIDATE ACCESS</div>
+        <h1 class="section-title" id="authTitle">Welcome back</h1>
+        <p class="section-subtitle" id="authSubtitle">Log in to access your interview practice.</p>
+        <div class="auth-tabs">
+          <button class="btn btn-primary" type="button" id="showLogin">Login</button>
+          <button class="btn btn-secondary" type="button" id="showRegister">Create account</button>
+        </div>
+
+        <form class="auth-form" id="loginForm">
+          <div><label for="loginEmail" class="form-label">Email address</label><input class="form-input" type="email" id="loginEmail" required autocomplete="email" placeholder="you@example.com"></div>
+          <div><label for="loginPassword" class="form-label">Password</label><input class="form-input" type="password" id="loginPassword" required autocomplete="current-password" placeholder="Enter your password"></div>
+          <button class="btn btn-primary btn-block" type="submit">Login to InterviewAI</button>
+        </form>
+
+        <form class="auth-form" id="registerForm" hidden>
+          <div><label for="regName" class="form-label">Full name</label><input class="form-input" type="text" id="regName" required autocomplete="name" placeholder="Your name"></div>
+          <div><label for="regEmail" class="form-label">Email address</label><input class="form-input" type="email" id="regEmail" required autocomplete="email" placeholder="you@example.com"></div>
+          <div><label for="regRole" class="form-label">Primary target role</label>
+            <select class="form-select" id="regRole">
+              <option>Full Stack Developer</option><option>Frontend Developer</option><option>Backend Developer</option><option>Technical</option><option>Behavioral</option><option>HR</option>
+            </select>
+          </div>
+          <div><label for="regPassword" class="form-label">Password (minimum 6 characters)</label><input class="form-input" type="password" id="regPassword" required minlength="6" autocomplete="new-password" placeholder="Create a password"></div>
+          <button class="btn btn-primary btn-block" type="submit">Create account</button>
+        </form>
+        <p class="auth-message" id="authMessage" role="status" hidden></p>
+        <p class="auth-note">This page currently demonstrates front-end authentication using this browser's local storage. Connect it to your server/database before using it for real accounts.</p>
+      </div>
+
+      <div id="logoutPanel" hidden>
+        <div class="section-tag">ACCOUNT</div>
+        <h1 class="section-title">You are logged in</h1>
+        <p class="section-subtitle" id="loggedInAs"></p>
+        <button class="btn btn-primary btn-block" id="logoutBtn" type="button">Log out</button>
+      </div>
+    </section>
+    <a class="auth-back" href="index.html">← Back to InterviewAI home</a>
+  </main>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const message = document.getElementById('authMessage');
+    const authForms = document.getElementById('authForms');
+    const logoutPanel = document.getElementById('logoutPanel');
+
+    function showMessage(text) {
+      message.textContent = text;
+      message.hidden = false;
+    }
+    function setMode(mode) {
+      const registering = mode === 'register';
+      loginForm.hidden = registering;
+      registerForm.hidden = !registering;
+      document.getElementById('authTitle').textContent = registering ? 'Create your account' : 'Welcome back';
+      document.getElementById('authSubtitle').textContent = registering ? 'Set up your InterviewAI profile.' : 'Log in to access your interview practice.';
+      document.getElementById('showLogin').className = registering ? 'btn btn-secondary' : 'btn btn-primary';
+      document.getElementById('showRegister').className = registering ? 'btn btn-primary' : 'btn btn-secondary';
+      message.hidden = true;
+      if (location.hash === '#register' && !registering) history.replaceState(null, '', 'login.html');
+    }
+    function refreshSession() {
+      const user = localStorage.getItem('interviewAIUser');
+      if (user) {
+        let account;
+        try { account = JSON.parse(user); } catch { account = { name: user }; }
+        authForms.hidden = true;
+        logoutPanel.hidden = false;
+        document.getElementById('loggedInAs').textContent = account.name || account.email || 'Candidate';
+      } else {
+        authForms.hidden = false;
+        logoutPanel.hidden = true;
+      }
+    }
+    document.getElementById('showLogin').addEventListener('click', () => setMode('login'));
+    document.getElementById('showRegister').addEventListener('click', () => setMode('register'));
+
+    registerForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const password = document.getElementById('regPassword').value;
+      if (password.length < 6) return showMessage('Password must contain at least 6 characters.');
+      const accounts = JSON.parse(localStorage.getItem('interviewAIAccounts') || '{}');
+      if (accounts[email]) return showMessage('An account with this email already exists.');
+      accounts[email] = { name, email, password, role: document.getElementById('regRole').value };
+      localStorage.setItem('interviewAIAccounts', JSON.stringify(accounts));
+      localStorage.setItem('interviewAIUser', JSON.stringify({ name, email, role: accounts[email].role }));
+      refreshSession();
+    });
+
+    loginForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+      const accounts = JSON.parse(localStorage.getItem('interviewAIAccounts') || '{}');
+      if (!accounts[email] || accounts[email].password !== password) {
+        return showMessage('Invalid email or password. Create an account first if this is your first visit.');
+      }
+      localStorage.setItem('interviewAIUser', JSON.stringify({ name: accounts[email].name, email, role: accounts[email].role }));
+      refreshSession();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('interviewAIUser');
+      refreshSession();
+      setMode('login');
+      showMessage('You have been logged out.');
+    });
+
+    if (location.hash === '#register') setMode('register');
+    refreshSession();
+  </script>
+</body>
+</html>
