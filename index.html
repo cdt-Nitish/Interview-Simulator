@@ -18,6 +18,7 @@
 
 
 <body>
+  <script src="./JS/auth.js"></script>
   <script src="./JS/camera.js"></script>
   <script src="./JS/dashboard.js"></script>
 
@@ -49,9 +50,17 @@
       </nav>
 
       <div class="nav-actions">
-        <button type="button" class="btn btn-ghost" id="loginNavBtn"
-          onclick="window.location.href='./frontend/login.html'">Login</button>
-        <button type="button" class="btn btn-primary" id="startNavBtn">Get Started</button>
+        <div id="authLoggedOutActions" class="auth-action-group">
+          <button type="button" class="btn btn-ghost" id="loginNavBtn">Login</button>
+          <button type="button" class="btn btn-primary" id="startNavBtn">Get Started</button>
+        </div>
+        <div id="authLoggedInActions" class="auth-action-group" hidden>
+          <div class="user-badge" id="navUserBadge" title="Candidate Profile">
+            <span class="user-avatar" id="navUserAvatar">U</span>
+            <span class="user-name" id="navUserName">Candidate</span>
+          </div>
+          <button type="button" class="btn btn-ghost" id="logoutNavBtn">Log Out</button>
+        </div>
         <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation Menu"
           aria-expanded="false">
           <span class="hamburger-bar"></span>
@@ -708,7 +717,7 @@
   <!-- ================= AUTH MODALS ================= -->
 
   <!-- Login Modal -->
-  <!-- <div class="modal-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle" hidden>
+  <div class="modal-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle" hidden>
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-header-text">
@@ -757,7 +766,7 @@
   </div>
 
   <!-- Register Modal -->
-  <!-- <div class="modal-overlay" id="registerModal" role="dialog" aria-modal="true" aria-labelledby="registerTitle" hidden>
+  <div class="modal-overlay" id="registerModal" role="dialog" aria-modal="true" aria-labelledby="registerTitle" hidden>
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-header-text">
@@ -818,7 +827,7 @@
         </div>
       </form>
     </div>
-  </div> -->
+  </div>
 
   <!-- ================= INTERVIEW SETUP MODAL ================= -->
   <div class="modal-overlay" id="setupModal" role="dialog" aria-modal="true" aria-labelledby="setupTitle" hidden>

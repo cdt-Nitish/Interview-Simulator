@@ -26,7 +26,7 @@
 </head>
 <body>
   <main class="auth-page">
-    <a class="brand auth-brand" href="../index.html" aria-label="InterviewAI Home">
+    <a class="brand auth-brand" href="/" aria-label="InterviewAI Home">
       <span class="brand-text">Interview<span class="brand-accent">AI</span></span>
     </a>
     <section class="auth-card">
@@ -57,17 +57,20 @@
           <button class="btn btn-primary btn-block" type="submit">Create account</button>
         </form>
         <p class="auth-message" id="authMessage" role="status" hidden></p>
-        <p class="auth-note">This page currently demonstrates front-end authentication using this browser's local storage. Connect it to your server/database before using it for real accounts.</p>
+        <p class="auth-note">Powered by MySQL with secure session authentication.</p>
       </div>
 
       <div id="logoutPanel" hidden>
         <div class="section-tag">ACCOUNT</div>
         <h1 class="section-title">You are logged in</h1>
         <p class="section-subtitle" id="loggedInAs"></p>
-        <button class="btn btn-primary btn-block" id="logoutBtn" type="button">Log out</button>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+          <a href="/" class="btn btn-secondary" style="flex:1; text-align:center; text-decoration:none;">Go to Simulator</a>
+          <button class="btn btn-primary" id="logoutBtn" type="button" style="flex:1;">Log out</button>
+        </div>
       </div>
     </section>
-    <a class="auth-back" href="index.html">← Back to InterviewAI home</a>
+    <a class="auth-back" href="/">← Back to InterviewAI home</a>
   </main>
 
   <script>
@@ -92,7 +95,17 @@
       message.hidden = true;
       if (location.hash === '#register' && !registering) history.replaceState(null, '', 'login.html');
     }
-    function refreshSession() {
+    async function refreshSession() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.isLoggedIn && data.user) {
+            localStorage.setItem('interviewAIUser', JSON.stringify(data.user));
+          }
+        }
+      } catch (e) {}
+
       const user = localStorage.getItem('interviewAIUser');
       if (user) {
         let account;
@@ -108,33 +121,71 @@
     document.getElementById('showLogin').addEventListener('click', () => setMode('login'));
     document.getElementById('showRegister').addEventListener('click', () => setMode('register'));
 
-    registerForm.addEventListener('submit', event => {
+    registerForm.addEventListener('submit', async event => {
       event.preventDefault();
       const name = document.getElementById('regName').value.trim();
       const email = document.getElementById('regEmail').value.trim().toLowerCase();
       const password = document.getElementById('regPassword').value;
+      const role = document.getElementById('regRole').value;
       if (password.length < 6) return showMessage('Password must contain at least 6 characters.');
-      const accounts = JSON.parse(localStorage.getItem('interviewAIAccounts') || '{}');
-      if (accounts[email]) return showMessage('An account with this email already exists.');
-      accounts[email] = { name, email, password, role: document.getElementById('regRole').value };
-      localStorage.setItem('interviewAIAccounts', JSON.stringify(accounts));
-      localStorage.setItem('interviewAIUser', JSON.stringify({ name, email, role: accounts[email].role }));
-      refreshSession();
+
+      try {
+        const res = await fetch('/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          localStorage.setItem('interviewAIUser', JSON.stringify(data.user));
+          window.location.href = '/';
+          return;
+        } else {
+          return showMessage(data.message || (data.errors && data.errors[0]) || 'Registration failed.');
+        }
+      } catch (err) {
+        const accounts = JSON.parse(localStorage.getItem('interviewAIAccounts') || '{}');
+        if (accounts[email]) return showMessage('An account with this email already exists.');
+        accounts[email] = { name, email, password, role };
+        localStorage.setItem('interviewAIAccounts', JSON.stringify(accounts));
+        localStorage.setItem('interviewAIUser', JSON.stringify({ name, email, role }));
+        refreshSession();
+      }
     });
 
-    loginForm.addEventListener('submit', event => {
+    loginForm.addEventListener('submit', async event => {
       event.preventDefault();
       const email = document.getElementById('loginEmail').value.trim().toLowerCase();
       const password = document.getElementById('loginPassword').value;
-      const accounts = JSON.parse(localStorage.getItem('interviewAIAccounts') || '{}');
-      if (!accounts[email] || accounts[email].password !== password) {
-        return showMessage('Invalid email or password. Create an account first if this is your first visit.');
+
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          localStorage.setItem('interviewAIUser', JSON.stringify(data.user));
+          window.location.href = '/';
+          return;
+        } else {
+          return showMessage(data.message || 'Invalid email or password.');
+        }
+      } catch (err) {
+        const accounts = JSON.parse(localStorage.getItem('interviewAIAccounts') || '{}');
+        if (!accounts[email] || accounts[email].password !== password) {
+          return showMessage('Invalid email or password. Create an account first if this is your first visit.');
+        }
+        localStorage.setItem('interviewAIUser', JSON.stringify({ name: accounts[email].name, email, role: accounts[email].role }));
+        refreshSession();
       }
-      localStorage.setItem('interviewAIUser', JSON.stringify({ name: accounts[email].name, email, role: accounts[email].role }));
-      refreshSession();
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/logout', { method: 'POST' });
+      } catch (e) {}
       localStorage.removeItem('interviewAIUser');
       refreshSession();
       setMode('login');

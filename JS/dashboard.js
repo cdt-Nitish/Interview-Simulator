@@ -1,10 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Navigation & UI Interactions
+    
     const navbar = document.getElementById('navbar');
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('navMenu');
 
-    // Add shadow on scroll
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
             navbar.classList.add('scrolled');
@@ -86,6 +85,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         };
 
+        try {
+            const storedUser = localStorage.getItem('interviewAIUser');
+            if (storedUser) {
+                const u = JSON.parse(storedUser);
+                if (u.role) mockData.latestRole = u.role;
+            }
+        } catch(e) {}
+
         // Update summary metrics
         const dashAvgScore = document.getElementById('dashAvgScore');
         const dashTotalInterviews = document.getElementById('dashTotalInterviews');
@@ -116,6 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Initialize data
+    
     loadDashboardData();
 });

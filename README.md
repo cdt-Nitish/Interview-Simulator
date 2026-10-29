@@ -1,630 +1,168 @@
-# 🤖 AI Mock Interview Practice
+# 🤖 InterviewAI — Relational Data Architecture & Workflow Guide
 
-> An AI-powered platform that simulates real interview experiences using **Gemini AI, MediaPipe, Node.js, JavaScript, and MySQL**.
+> An AI-powered mock interview platform built with **Node.js, Express, and MySQL 8.0+**.  
+> This guide outlines the relational schema defined in `Database/schema.sql` and explains how records are generated, managed, and persisted from the application code.
 
 ---
 
-## 📌 Project Overview
+## 📌 1. Database Architecture Overview
 
-**AI Mock Interview Practice** is a web-based platform designed to help students and job seekers practice technical and HR interviews.
+The platform uses a normalized relational database (`interview_simulator`) with foreign-key cascade rules and indexed lookup fields. All tables are defined in [`Database/schema.sql`](file:///c:/Users/Nitish%20Joshi/OneDrive/Desktop/Interview-simulator/Interview-Simulator/Database/schema.sql).
 
-The system generates interview questions using **Gemini AI**, analyzes basic face and eye-related signals using **MediaPipe**, evaluates answers using AI, and stores interview performance in **MySQL**.
+### Relational Entity-Relationship (ER) Flow
+```text
+[ users ]
+   │
+   ├── (1:N) ──► [ interviews ]
+   │                  │
+   │                  ├── (1:N) ──► [ questions ]
+   │                  │                  │
+   │                  │                  └── (1:N) ──► [ answers ] ◄── (1:N) ──┘
+   │                  │
+   │                  └── (1:1) ──► [ interview_metrics ]
+   │
+   └── (Auth) ──► [ sessions ]
+```
 
-### 🎯 Main Goal
+---
+
+## 🗄️ 2. Core Database Tables
+
+### 1. `users`
+Stores user profile information, authentication credentials, and candidate preferences:
+* `id` (INT, PK, AUTO_INCREMENT): Unique candidate identifier.
+* `first_name`, `last_name`: Candidate's legal name.
+* `email` (VARCHAR(191), UNIQUE, INDEXED): Login username and contact.
+* `password` (VARCHAR(255)): Bcrypt-hashed password (12 salt rounds).
+* `role` (ENUM): Candidate access role (`candidate`, `interviewer`, `admin`).
+* `target_role`: Primary career domain (e.g., Full Stack, Frontend, Backend).
+* `experience_level`: Experience bracket (`Fresher / Entry`, `Mid-Level`, `Senior`).
+* `created_at`, `updated_at`: Audit timestamps.
+
+### 2. `interviews`
+Tracks each distinct mock interview session:
+* `id` (INT, PK, AUTO_INCREMENT): Interview session ID.
+* `user_id` (INT, FK -> `users.id` ON DELETE CASCADE): Session owner.
+* `role`: Specific position chosen for the practice session.
+* `interview_type`: Category (`Technical`, `HR`, `Behavioral`).
+* `difficulty`: Selected difficulty (`Easy`, `Medium`, `Hard`).
+* `score`: Aggregated evaluation score (0.00 – 10.00).
+* `status`: Lifecycle state (`pending`, `in_progress`, `completed`).
+* `feedback`: Overall AI qualitative evaluation summary.
+
+### 3. `questions`
+Contains interview questions generated for a session:
+* `id` (INT, PK, AUTO_INCREMENT): Unique question ID.
+* `interview_id` (INT, FK -> `interviews.id` ON DELETE CASCADE): Parent interview.
+* `question_text`: AI-generated prompt question.
+* `question_order`: Sequence index in the interview workstation.
+
+### 4. `answers`
+Stores candidate responses and itemized scoring:
+* `id` (INT, PK, AUTO_INCREMENT): Answer record ID.
+* `question_id` (INT, FK -> `questions.id` ON DELETE CASCADE): Question reference.
+* `user_id` (INT, FK -> `users.id` ON DELETE CASCADE): Candidate reference.
+* `answer_text`: Candidate's verbatim or transcribed response.
+* `score`: Question-level score evaluated by Gemini AI.
+* `feedback`: Targeted strengths, weaknesses, and improvement points.
+
+### 5. `interview_metrics`
+Logs computer-vision telemetry recorded via MediaPipe during the session:
+* `id` (INT, PK, AUTO_INCREMENT): Metric record ID.
+* `interview_id` (INT, FK -> `interviews.id` ON DELETE CASCADE): Session link.
+* `face_detection_pct`: Percentage of time candidate was centered in frame.
+* `eye_contact_pct`: Eye gaze contact ratio maintained during the round.
+
+### 6. `sessions`
+Provides persistent session state storage for Express:
+* `session_id` (VARCHAR(128), PK): Express session identifier.
+* `expires` (INT UNSIGNED, INDEXED): UNIX expiration timestamp.
+* `data` (MEDIUMTEXT): Serialized session payload (logged-in user context).
+
+---
+
+## ⚙️ 3. How Data is Created in VS Code
+
+When running the project locally in VS Code, data flows through modular layers:
 
 ```text
-        👨‍💻 USER
+[ Frontend / Client UI ]
            │
-           ▼
-   🎤 MOCK INTERVIEW
+           ▼ (HTTP JSON / Form Post)
+[ Express Routes & Controllers ]  ──► (Backend/controllers/authController.js)
            │
-     ┌─────┴─────┐
-     ▼           ▼
- 🤖 Gemini    👁️ MediaPipe
-     │           │
-     └─────┬─────┘
-           ▼
-      📊 ANALYSIS
+           ▼ (Parameterized Queries)
+[ Native MySQL Models ]           ──► (Backend/models/User.js, Interview.js)
            │
-           ▼
-      💾 MySQL
-           │
-           ▼
-   📈 PERFORMANCE
+           ▼ (mysql2 Connection Pool)
+[ MySQL 8.0+ Database Server ]   ──► (Database/schema.sql tables)
 ```
+
+### Data Creation Flow Step-by-Step
+
+#### Step 1: Automated Database Bootstrapping
+* **File:** `Backend/config/db.js`
+* **Trigger:** Server startup (`node app.js` or `npm start`).
+* **Action:** Executes `CREATE DATABASE IF NOT EXISTS interview_simulator` followed by table creation statements from `TABLE_DEFINITIONS`. The database and tables are provisioned automatically without manual CLI commands.
+
+#### Step 2: User Registration & Credential Hashing
+* **Files:** `frontend/login.html` & `JS/auth.js` ➔ `Backend/controllers/authController.js` ➔ `Backend/models/User.js`
+* **Trigger:** Submitting the registration form (`POST /signup`).
+* **Action:**
+  1. Input validation runs via `express-validator`.
+  2. Password is salted and hashed using `bcrypt.hash(password, 12)`.
+  3. `User.create()` runs an `INSERT INTO users (...) VALUES (...)` statement.
+  4. The returned `insertId` establishes the primary key for the new candidate.
+
+#### Step 3: Session Persistence
+* **Files:** `Backend/config/sessionStore.js` ➔ `app.js`
+* **Trigger:** Successful login or signup.
+* **Action:** The custom `MySQLSessionStore` executes a `REPLACE INTO sessions (session_id, expires, data)` query, storing authentication state in MySQL with a 7-day TTL.
+
+#### Step 4: Interview Session Initialization
+* **Files:** `Backend/models/Interview.js` ➔ Client Setup Modal
+* **Trigger:** Candidate selects a role/difficulty and clicks "Start Interview".
+* **Action:** An `INSERT INTO interviews (user_id, role, interview_type, difficulty, status)` query creates a new row with `status = 'in_progress'` linked to the logged-in `user_id`.
+
+#### Step 5: Question Generation & Answer Scoring
+* **Trigger:** Gemini AI generates questions; candidate submits answers.
+* **Action:**
+  1. Questions are inserted into `questions` with their sequence order.
+  2. Candidate submissions trigger inserts into `answers` containing `answer_text`, Gemini AI score, and feedback text.
+
+#### Step 6: Telemetry & Metrics Storage
+* **Files:** `JS/camera.js` & Vision HUD ➔ Metric Endpoints
+* **Trigger:** Interview completion.
+* **Action:** Aggregated MediaPipe face and eye tracking percentages are inserted into `interview_metrics`. Final scores are calculated and updated in `interviews`.
 
 ---
 
-# ✨ Key Features
-
-### 👤 User Management
-
-* User registration and login
-* Secure authentication
-* Personal interview history
-
-### 🤖 AI Interview
-
-* AI-generated questions
-* Technical and HR interviews
-* Role-based questions
-* Difficulty selection
-* Dynamic questions using Gemini
-
-### 🎥 Interview Monitoring
-
-* Webcam integration
-* Face detection
-* Eye-related tracking
-* Facial landmark analysis using MediaPipe
-
-### 📊 AI Evaluation
-
-* Answer evaluation
-* Score generation
-* Strengths and weaknesses
-* Improvement suggestions
-* Overall interview feedback
-
-### 📈 Performance Dashboard
-
-* Previous interview results
-* Average score
-* Interview history
-* Performance tracking
-
----
-
-# 🛠️ Technology Stack
-
-| Technology    | Purpose                          |
-| ------------- | -------------------------------- |
-| 🌐 HTML5      | Website structure                |
-| 🎨 CSS3       | UI and responsive design         |
-| ⚡ JavaScript  | Frontend functionality           |
-| 🟢 Node.js    | Backend runtime                  |
-| 🚀 Express.js | REST API/backend                 |
-| 🤖 Gemini API | AI questions & evaluation        |
-| 👁️ MediaPipe | Face/eye landmark analysis       |
-| 🗄️ MySQL     | Data storage                     |
-| 🔗 REST API   | Frontend ↔ Backend communication |
-
----
-
-# 🏗️ System Architecture
-
-```text
-                    👤 USER
-                      │
-                      ▼
-            ┌──────────────────┐
-            │    FRONTEND      │
-            │ HTML + CSS + JS  │
-            └────────┬─────────┘
-                     │
-             ┌───────┴───────┐
-             │               │
-             ▼               ▼
-      👁️ MediaPipe      🔗 REST API
-      Face / Eye             │
-      Analysis               ▼
-                     ┌───────────────┐
-                     │ Node.js +     │
-                     │ Express.js    │
-                     └───────┬───────┘
-                             │
-                  ┌──────────┴──────────┐
-                  │                     │
-                  ▼                     ▼
-             🤖 Gemini               🗄️ MySQL
-              AI API                Database
-                  │                     │
-                  └──────────┬──────────┘
-                             ▼
-                    📊 FINAL RESULT
-```
-
----
-
-# 🔄 Complete Working Flow
-
-The complete interview process works like this:
-
-```text
-1️⃣ REGISTER / LOGIN
-        │
-        ▼
-2️⃣ SELECT INTERVIEW
-   ├── Role
-   ├── Type
-   ├── Difficulty
-   └── Questions
-        │
-        ▼
-3️⃣ CREATE INTERVIEW SESSION
-        │
-        ▼
-4️⃣ GEMINI GENERATES QUESTIONS
-        │
-        ▼
-5️⃣ START WEBCAM
-        │
-        ▼
-6️⃣ MEDIAPIPE ANALYZES FACE/EYES
-        │
-        ▼
-7️⃣ USER ANSWERS QUESTION
-        │
-        ▼
-8️⃣ GEMINI EVALUATES ANSWER
-        │
-        ▼
-9️⃣ SAVE RESULT IN MYSQL
-        │
-        ▼
-🔟 NEXT QUESTION
-        │
-        ▼
-   ALL QUESTIONS DONE?
-        │
-        ▼
-1️⃣1️⃣ FINAL SCORE + FEEDBACK
-        │
-        ▼
-1️⃣2️⃣ DASHBOARD / HISTORY
-```
-
----
-
-# 🎤 Interview Process
-
-## Step 1 — Interview Setup
-
-The user selects the interview configuration.
-
-```text
-┌─────────────────────────────┐
-│     🎯 INTERVIEW SETUP      │
-├─────────────────────────────┤
-│ Role:       Full Stack Dev  │
-│ Type:       Technical       │
-│ Difficulty: Medium          │
-│ Questions:  10              │
-│                             │
-│       [ Start Interview ]   │
-└─────────────────────────────┘
-```
-
-The configuration is sent to the Node.js backend.
-
----
-
-## Step 2 — AI Question Generation
-
-Node.js sends the configuration to Gemini.
-
-```text
-User Configuration
-        │
-        ▼
-   Node.js Server
-        │
-        ▼
-    🤖 Gemini
-        │
-        ▼
-  Generated Questions
-        │
-        ▼
-      MySQL
-```
-
-Example:
-
-> **Question:** What is the difference between `let`, `const`, and `var` in JavaScript?
-
-Questions are generated according to the selected role and difficulty.
-
----
-
-# 🎥 Step 3 — Webcam & MediaPipe
-
-When the interview starts, the browser requests webcam access.
-
-```text
-📷 Webcam
-    │
-    ▼
-Video Frames
-    │
-    ▼
-👁️ MediaPipe
-    │
-    ▼
-Facial Landmarks
-    │
-    ├── Face Detection
-    ├── Eye Landmarks
-    ├── Head Orientation
-    └── Facial Features
-```
-
-The system can derive basic interview-related indicators such as face presence and eye/gaze-related signals.
-
-> ⚠️ These measurements are approximate signals and should not be treated as definitive judgments about a person's emotions or behavior.
-
----
-
-# 💬 Step 4 — Answer Evaluation
-
-The candidate submits an answer.
-
-```text
-        QUESTION
-           │
-           ▼
-      👨‍💻 ANSWER
-           │
-           ▼
-      Node.js API
-           │
-           ▼
-       🤖 Gemini
-           │
-     ┌─────┴─────┐
-     ▼           ▼
-   SCORE       FEEDBACK
-     │           │
-     └─────┬─────┘
-           ▼
-        🗄️ MySQL
-```
-
-Gemini can evaluate:
-
-* ✅ Correctness
-* 🎯 Relevance
-* 📝 Completeness
-* 💬 Clarity
-* 💡 Explanation quality
-
-Example:
-
-```text
-Score: 8/10
-
-Strengths:
-✓ Correct concept
-✓ Good explanation
-
-Improve:
-• Add a practical example
-• Explain the differences more clearly
-```
-
----
-
-# 🗄️ Database Design
-
-MySQL stores the information required by the application.
-
-### Main Tables
-
-```text
-             👤 USERS
-                │
-                │ 1 : N
-                ▼
-          🎤 INTERVIEWS
-             /       \
-            /         \
-           ▼           ▼
-     ❓ QUESTIONS    📊 METRICS
-           │
-           │ 1 : N
-           ▼
-       💬 ANSWERS
-```
-
-### Users
-
-```text
-users
-├── id
-├── name
-├── email
-├── password_hash
-└── created_at
-```
-
-### Interviews
-
-```text
-interviews
-├── id
-├── user_id
-├── interview_type
-├── role
-├── difficulty
-├── total_questions
-├── total_score
-├── status
-└── created_at
-```
-
-### Questions
-
-```text
-questions
-├── id
-├── interview_id
-├── question_text
-├── question_number
-└── topic
-```
-
-### Answers
-
-```text
-answers
-├── id
-├── interview_id
-├── question_id
-├── answer_text
-├── score
-└── feedback
-```
-
-### Interview Metrics
-
-```text
-interview_metrics
-├── id
-├── interview_id
-├── face_detected_percentage
-├── eye_contact_percentage
-└── session_duration
-```
-
----
-
-# 🔌 API Structure
-
-The Node.js backend provides REST APIs.
-
-### 🔐 Authentication
-
-```http
-POST /api/auth/register
-POST /api/auth/login
-```
-
-### 🎤 Interview
-
-```http
-POST /api/interviews
-GET  /api/interviews/:id
-POST /api/interviews/:id/start
-POST /api/interviews/:id/complete
-```
-
-### ❓ Questions
-
-```http
-GET  /api/interviews/:id/questions
-POST /api/interviews/:id/questions/generate
-```
-
-### 💬 Answers
-
-```http
-POST /api/interviews/:id/answers
-```
-
-### 📊 Results
-
-```http
-GET /api/interviews/:id/result
-GET /api/interviews/history
-```
-
----
-
-# 📁 Project Structure
-
-```text
-AI-Mock-Interview/
-│
-├── 📂 frontend/
-│   ├── index.html
-│   ├── login.html
-│   ├── register.html
-│   ├── dashboard.html
-│   ├── interview.html
-│   ├── result.html
-│   │
-│   ├── 📂 css/
-│   │   └── style.css
-│   │
-│   └── 📂 js/
-│       ├── auth.js
-│       ├── dashboard.js
-│       ├── interview.js
-│       └── camera.js
-│
-├── 📂 backend/
-│   ├── server.js
-│   │
-│   ├── 📂 routes/
-│   ├── 📂 controllers/
-│   ├── 📂 services/
-│   │   └── geminiService.js
-│   ├── 📂 middleware/
-│   └── 📂 config/
-│       └── db.js
-│
-├── 📂 database/
-│   └── schema.sql
-│
-├── .env
-├── .gitignore
-├── package.json
-└── README.md
-```
-
----
-
-# 🚀 Development Roadmap
-
-The project should be developed step by step.
-
-```text
-PHASE 1 🏗️
-Project Setup
-HTML + CSS + JS
-        │
-        ▼
-PHASE 2 🟢
-Node.js + Express
-        │
-        ▼
-PHASE 3 🗄️
-MySQL Database
-        │
-        ▼
-PHASE 4 🔐
-Authentication
-        │
-        ▼
-PHASE 5 🤖
-Gemini Integration
-        │
-        ▼
-PHASE 6 🎤
-Interview System
-        │
-        ▼
-PHASE 7 💬
-Answer Evaluation
-        │
-        ▼
-PHASE 8 👁️
-MediaPipe Integration
-        │
-        ▼
-PHASE 9 📊
-Results + Dashboard
-        │
-        ▼
-PHASE 10 🚀
-Testing & Deployment
-```
-
----
-
-# 🔮 Future Scope
-
-The platform can be expanded with:
-
-### 🎙️ Voice Interview
-
-Speech-to-text for spoken answers.
-
-### 🔊 AI Interviewer
-
-Text-to-speech for AI-generated questions.
-
-### 📄 Resume-Based Interview
-
-Generate questions from the user's resume.
-
-### 💻 Coding Interview
-
-Add a coding editor and programming questions.
-
-### 🧠 Adaptive Difficulty
-
-Automatically adjust question difficulty based on performance.
-
-```text
-Good Performance
-       ↓
-Increase Difficulty
-       ↓
-More Challenging Questions
-```
-
-### 📈 Advanced Analytics
-
-```text
-Interview History
-       │
-       ▼
-Performance Data
-       │
-       ▼
-📊 Charts & Trends
-       │
-       ▼
-Improvement Tracking
-```
-
----
-
-# 🎯 Expected Result
-
-At the end of an interview, the user receives a complete performance report.
-
-```text
-╔════════════════════════════════════╗
-║       🤖 INTERVIEW RESULT          ║
-╠════════════════════════════════════╣
-║ Role: Full Stack Developer         ║
-║ Questions: 10                      ║
-║ Score: ⭐ 8.2 / 10                 ║
-╠════════════════════════════════════╣
-║ ✅ Strong Areas                    ║
-║ • JavaScript                       ║
-║ • Node.js                          ║
-║                                    ║
-║ 📚 Improve                         ║
-║ • Database Concepts                ║
-║ • System Design                    ║
-╠════════════════════════════════════╣
-║ 👁️ Face Detection: 96%             ║
-║ 🎯 Eye/Gaze Metric: 82%            ║
-║ ⏱️ Duration: 18 min                ║
-╚════════════════════════════════════╝
-```
-
----
-
-# 🏁 Project Goal
-
-The final goal is to create a complete interview practice ecosystem:
-
-```text
-       👨‍💻 USER
-          │
-          ▼
-     🎤 INTERVIEW
-          │
-    ┌─────┴─────┐
-    ▼           ▼
- 🤖 GEMINI   👁️ MEDIAPIPE
-    │           │
-    └─────┬─────┘
-          ▼
-      📊 ANALYSIS
-          │
-          ▼
-       🗄️ MYSQL
-          │
-          ▼
-     📈 DASHBOARD
-          │
-          ▼
-   🚀 BETTER PREPARATION
-```
-
-**Built with ❤️ using HTML, CSS, JavaScript, Node.js, Gemini AI, MediaPipe & MySQL.**
+## 🚀 4. How to Run & Verify in VS Code
+
+1. **Configure Environment Variables:**
+   Update database credentials in `.env`:
+   ```env
+   PORT=3000
+   MYSQL_HOST=127.0.0.1
+   MYSQL_PORT=3306
+   MYSQL_USER=root
+   MYSQL_PASSWORD=your_password
+   MYSQL_DATABASE=interview_simulator
+   ```
+
+2. **Start the Application:**
+   ```bash
+   npm run dev
+   # or
+   node app.js
+   ```
+
+3. **Verify Connection & Health:**
+   Open browser at `http://localhost:3000/api/health` to confirm MySQL connectivity:
+   ```json
+   {
+     "status": "online",
+     "database": "MySQL 8.0+",
+     "databaseConnected": true
+   }
+   ```
