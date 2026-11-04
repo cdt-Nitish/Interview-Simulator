@@ -7,6 +7,7 @@ require('dotenv').config();
 const { connectDB, pool, isDbConnected } = require('./Backend/config/db');
 const MySQLSessionStore = require('./Backend/config/sessionStore');
 const authRoutes = require('./Backend/routes/authRoutes');
+const interviewRoutes = require('./Backend/routes/interviewRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -55,6 +56,9 @@ app.use(express.static(path.join(__dirname)));
 // Auth Routes (supports both root-level /login, /signup, /logout and /api/auth/*)
 app.use(authRoutes);
 app.use('/api/auth', authRoutes);
+
+// Interview & AI Evaluation Routes (protected via session middleware)
+app.use('/api/interviews', interviewRoutes);
 
 // System Health Check
 app.get('/api/health', (req, res) => {

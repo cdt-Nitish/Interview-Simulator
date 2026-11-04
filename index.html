@@ -18,9 +18,10 @@
 
 
 <body>
-  <script src="./JS/auth.js"></script>
-  <script src="./JS/camera.js"></script>
-  <script src="./JS/dashboard.js"></script>
+
+
+
+
 
 
   <!-- ================= NAVBAR ================= -->
@@ -149,6 +150,7 @@
                 <h2 class="preview-question-text">
                   What is event delegation in JavaScript and how does it leverage event bubbling?
                 </h2>
+    
                 <div class="preview-question-hints">
                   <span>Topic: JavaScript Core</span>
                   <span>Difficulty: Intermediate</span>
@@ -945,9 +947,10 @@
               <span class="difficulty-tag" id="activeDiffBadge">DIFFICULTY: MEDIUM</span>
             </div>
 
-            <h2 class="active-question-heading" id="activeQuestionText">
-              Loading question from generative engine...
-            </h2>
+            <!-- Inside your #interviewScreen: Question Display -->
+            <h3 class="active-question-heading" id="questionDisplay">Waiting to start interview...</h3>
+
+
 
             <div class="question-hints-box" id="questionHintsBox">
               <span class="hints-label">Focus Areas:</span>
@@ -959,7 +962,7 @@
 
           <div class="pane-card answer-pane">
             <div class="answer-header">
-              <label for="candidateAnswerInput" class="answer-label">Candidate Answer</label>
+              <label for="answerInput" class="answer-label">Candidate Answer</label>
               <div class="answer-stats">
                 <span id="wordCountLabel">0 words</span>
                 <span class="stats-sep">•</span>
@@ -969,9 +972,7 @@
               </div>
             </div>
 
-            <textarea id="candidateAnswerInput" class="answer-textarea"
-              placeholder="Structure your answer clearly. Mention technical concepts, real-world examples, and underlying architectural trade-offs..."
-              rows="9"></textarea>
+            <textarea id="answerInput" class="answer-textarea" placeholder="Type or speak your answer here..." rows="8"></textarea>
 
             <div class="answer-action-bar">
               <div class="answer-tools">
@@ -991,9 +992,25 @@
                 <button type="button" class="btn btn-secondary" id="nextQuestionBtn">
                   Next Question →
                 </button>
-                <button type="button" class="btn btn-primary" id="submitAnswerBtn">
-                  Submit &amp; Next
-                </button>
+                <button type="button" class="btn btn-primary" id="submitAnswerBtn" onclick="handleAnswerSubmit()">Submit Answer</button>
+              </div>
+            </div>
+            <!-- Feedback / Next steps area -->
+            <div id="feedbackBox" class="feedback-card" style="display: none; margin-top: 18px; padding: 18px; border-radius: 12px; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h4 style="margin: 0; color: #38bdf8; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                  <span>🤖</span> AI Feedback
+                </h4>
+                <span class="badge-status" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">QWEN 3 (4B)</span>
+              </div>
+              <p style="margin: 6px 0; font-size: 0.95rem; color: #f1f5f9;">
+                <strong>Score:</strong> <span id="scoreDisplay" style="color: #4ade80; font-weight: 700; font-size: 1.15rem;"></span>/10
+              </p>
+              <p style="margin: 6px 0; font-size: 0.95rem; color: #cbd5e1; line-height: 1.5;">
+                <strong>Strengths:</strong> <span id="strengthsDisplay"></span>
+              </p>
+              <div style="margin-top: 14px; text-align: right;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="getNextQuestion()">Next Question →</button>
               </div>
             </div>
           </div>
@@ -1220,7 +1237,12 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+
+  <!-- Client Scripts loaded after full DOM parsing -->
+  <script src="./JS/auth.js"></script>
+  <script src="./JS/camera.js"></script>
+  <script src="./JS/dashboard.js"></script>
+  <script src="./JS/interview.js"></script>
 </body>
 
 </html>

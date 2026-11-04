@@ -124,11 +124,13 @@ When running the project locally in VS Code, data flows through modular layers:
 * **Trigger:** Candidate selects a role/difficulty and clicks "Start Interview".
 * **Action:** An `INSERT INTO interviews (user_id, role, interview_type, difficulty, status)` query creates a new row with `status = 'in_progress'` linked to the logged-in `user_id`.
 
-#### Step 5: Question Generation & Answer Scoring
-* **Trigger:** Gemini AI generates questions; candidate submits answers.
+#### Step 5: Question Generation & Answer Scoring (Qwen 3 4B)
+* **Files:** `Backend/services/qwenService.js` & `JS/interview.js` ➔ `Backend/controllers/interviewController.js`
+* **Trigger:** Candidate starts interview; Qwen 3 (4B) generates questions; candidate submits answers.
 * **Action:**
-  1. Questions are inserted into `questions` with their sequence order.
-  2. Candidate submissions trigger inserts into `answers` containing `answer_text`, Gemini AI score, and feedback text.
+  1. Questions are generated via Ollama (`qwen3:4b`) and inserted into `questions` with their sequence order.
+  2. Candidate submissions trigger evaluation via Qwen 3 (4B) and inserts into `answers` containing `answer_text`, numeric score (1–10), and structured feedback (`strengths`, `weaknesses`, `followUpQuestion`).
+  3. Real-time feedback appears in `#feedbackBox` and accumulates into `#resultModal` at round completion.
 
 #### Step 6: Telemetry & Metrics Storage
 * **Files:** `JS/camera.js` & Vision HUD ➔ Metric Endpoints
