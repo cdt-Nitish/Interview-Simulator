@@ -2240,6 +2240,218 @@ textarea:focus-visible {
   line-height: 1.5;
 }
 
+/* Evaluating Overlay when generating final scorecard */
+.evaluating-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 29, 0.92);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.evaluating-overlay[hidden],
+.evaluating-overlay.hidden {
+  display: none !important;
+}
+
+.evaluating-modal-box {
+  background: var(--surface);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: var(--radius-md);
+  padding: 32px 36px;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+.evaluating-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(56, 189, 248, 0.2);
+  border-top-color: #38bdf8;
+  border-radius: 50%;
+  animation: evalSpin 0.9s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes evalSpin {
+  to { transform: rotate(360deg); }
+}
+
+.evaluating-stages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-top: 20px;
+}
+
+.eval-stage-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.eval-stage-item .stage-icon {
+  font-size: 0.9rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+.eval-stage-item.active {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.eval-stage-item.completed {
+  color: #4ade80;
+}
+
+.eval-stage-item.failed {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.evaluating-error-content {
+  text-align: center;
+}
+
+.evaluating-error-icon {
+  font-size: 2.75rem;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.evaluating-error-title {
+  margin: 0 0 10px 0;
+  color: #f87171;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.evaluating-error-desc {
+  margin: 0 0 24px 0;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.evaluating-error-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* MediaPipe Telemetry Scorecard Card */
+.result-telemetry-banner {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.telemetry-item {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 12px 14px;
+}
+
+.telemetry-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.telemetry-value {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.telemetry-note {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  border-left: 2px solid #38bdf8;
+  padding-left: 10px;
+}
+
+.behavioral-badges-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.behavioral-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.behavioral-badge.low {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.behavioral-badge.medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.behavioral-badge.high {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.eval-correct-text {
+  color: #4ade80;
+  line-height: 1.5;
+}
+
+.eval-missing-text {
+  color: #f87171;
+  line-height: 1.5;
+}
+
+.eval-improve-text {
+  color: #38bdf8;
+  line-height: 1.5;
+}
+
 .result-footer {
   padding: 18px 28px;
   background: var(--secondary);

@@ -995,22 +995,21 @@
                 <button type="button" class="btn btn-primary" id="submitAnswerBtn" onclick="handleAnswerSubmit()">Submit Answer</button>
               </div>
             </div>
-            <!-- Feedback / Next steps area -->
-            <div id="feedbackBox" class="feedback-card" style="display: none; margin-top: 18px; padding: 18px; border-radius: 12px; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);">
+            <!-- Interviewer Live Dialogue Box (Shows Interviewer Persona, NO scores during interview) -->
+            <div id="interviewerBox" class="feedback-card" style="margin-top: 18px; padding: 18px; border-radius: 12px; background: rgba(15, 23, 42, 0.94); border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h4 style="margin: 0; color: #38bdf8; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                  <span>🤖</span> AI Feedback
+                <h4 style="margin: 0; color: #38bdf8; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                  <span>🧑‍💼</span> Technical Interviewer
                 </h4>
-                <span class="badge-status" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">QWEN 3 (4B)</span>
+                <span class="badge-status" id="interviewerBadge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">ACTIVE QUESTION</span>
               </div>
-              <p style="margin: 6px 0; font-size: 0.95rem; color: #f1f5f9;">
-                <strong>Score:</strong> <span id="scoreDisplay" style="color: #4ade80; font-weight: 700; font-size: 1.15rem;"></span>/10
+              <p id="interviewerMessage" style="margin: 6px 0; font-size: 0.95rem; color: #f1f5f9; line-height: 1.6; font-style: italic;">
+                "Welcome to your technical interview. I will be evaluating your technical knowledge and practical reasoning. Please provide your answer to the question above."
               </p>
-              <p style="margin: 6px 0; font-size: 0.95rem; color: #cbd5e1; line-height: 1.5;">
-                <strong>Strengths:</strong> <span id="strengthsDisplay"></span>
-              </p>
-              <div style="margin-top: 14px; text-align: right;">
-                <button type="button" class="btn btn-primary btn-sm" onclick="getNextQuestion()">Next Question →</button>
+              <div id="finishInterviewActionWrap" style="margin-top: 14px; display: none; text-align: right;">
+                <button type="button" class="btn btn-primary" id="finishInterviewPromptBtn" onclick="finishInterviewAndShowResults()">
+                  Complete Interview &amp; Generate Scorecard →
+                </button>
               </div>
             </div>
           </div>
@@ -1052,10 +1051,10 @@
 
                 <!-- Telemetry Tags -->
                 <div class="hud-data-tag top">
-                  FACE DETECTED: <span id="hudFaceStatus">TRACKING ACTIVE</span>
+                  FACE DETECTED: <span id="hudFaceStatus">STREAM OFFLINE</span>
                 </div>
                 <div class="hud-data-tag bottom">
-                  ORIENTATION: <span id="hudOrientationStatus">CENTERED (0.02)</span>
+                  ORIENTATION: <span id="hudOrientationStatus">CAMERA INACTIVE</span>
                 </div>
               </div>
 
@@ -1078,21 +1077,42 @@
               <div class="vision-row">
                 <div class="vision-col">
                   <div class="metric-lbl">EYE CONTACT</div>
-                  <div class="metric-val" id="metricEyeVal">92%</div>
+                  <div class="metric-val" id="metricEyeVal">Data Unavailable</div>
                   <div class="metric-bar">
-                    <div class="metric-fill" id="metricEyeBar" style="width: 92%;"></div>
+                    <div class="metric-fill" id="metricEyeBar" style="width: 0%;"></div>
                   </div>
                 </div>
                 <div class="vision-col">
                   <div class="metric-lbl">FACE PRESENCE</div>
-                  <div class="metric-val" id="metricFaceVal">98%</div>
+                  <div class="metric-val" id="metricFaceVal">Data Unavailable</div>
                   <div class="metric-bar">
-                    <div class="metric-fill" id="metricFaceBar" style="width: 98%;"></div>
+                    <div class="metric-fill" id="metricFaceBar" style="width: 0%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="vision-row" style="margin-top: 10px;">
+                <div class="vision-col">
+                  <div class="metric-lbl">HEAD STABILITY</div>
+                  <div class="metric-val" id="metricStabilityVal">--</div>
+                  <div class="metric-bar">
+                    <div class="metric-fill" id="metricStabilityBar" style="width: 0%;"></div>
+                  </div>
+                </div>
+                <div class="vision-col">
+                  <div class="metric-lbl">TRACKING QUALITY</div>
+                  <div class="metric-val" id="metricQualityVal" style="font-size: 0.85rem;">Pending</div>
+                  <div class="metric-bar">
+                    <div class="metric-fill" id="metricQualityBar" style="width: 0%;"></div>
                   </div>
                 </div>
               </div>
 
               <div class="vision-note">
+                <span>🔒 Privacy:</span> Video stream is analyzed locally within browser memory. No video is uploaded.
+              </div>
+            </div>
+          </div>
                 <span>🔒 Privacy:</span> Video stream is analyzed locally within browser memory. No video is uploaded.
               </div>
             </div>
@@ -1119,13 +1139,12 @@
   <!-- ================= RESULT REPORT SCREEN (MODAL / FULL VIEW) ================= -->
   <div class="modal-overlay result-modal-overlay" id="resultModal" role="dialog" aria-modal="true"
     aria-labelledby="resultTitle" hidden>
-    <div class="result-card">
+    <div class="result-card" style="max-width: 920px;">
       <div class="result-header">
         <div class="result-header-left">
           <div class="result-badge">PERFORMANCE EVALUATION REPORT</div>
           <h2 class="result-title" id="resultTitle">Interview Completed</h2>
-          <p class="result-subtitle" id="resultSubtitle">Detailed diagnostic scoring evaluated by Gemini AI &amp;
-            MediaPipe signals</p>
+          <p class="result-subtitle" id="resultSubtitle">Detailed diagnostic scoring evaluated by AI &amp; MediaPipe signals</p>
         </div>
         <button type="button" class="modal-close" data-close-modal="resultModal"
           aria-label="Close modal">&times;</button>
@@ -1133,53 +1152,108 @@
 
       <div class="result-body">
 
-        <!-- Score Highlights Banner -->
+        <!-- Executive Summary Box -->
+        <div class="result-summary-box" style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 20px;">
+          <h4 style="margin: 0 0 6px 0; color: #38bdf8; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Hiring Evaluation Summary</h4>
+          <p id="resultExecutiveSummary" style="margin: 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.6;">
+            Evaluation in progress...
+          </p>
+        </div>
+
+        <!-- Score Highlights Banner (Dynamic Weighted Rubric) -->
         <div class="result-score-banner">
           <div class="score-circle">
-            <div class="score-number" id="resultOverallScore">8.4</div>
+            <div class="score-number" id="resultOverallScore">--</div>
             <div class="score-scale">/ 10</div>
-            <div class="score-caption">Overall Score</div>
+            <div class="score-caption">Technical Score</div>
           </div>
 
           <div class="score-breakdown-grid">
             <div class="score-metric-item">
               <div class="metric-head">
-                <span class="metric-label">Technical Knowledge</span>
-                <span class="metric-score" id="resultTechScore">8.6 / 10</span>
+                <span class="metric-label">Technical Knowledge (40%)</span>
+                <span class="metric-score" id="resultTechScore">-- / 10</span>
               </div>
               <div class="result-meter">
-                <div class="meter-bar" id="resultTechBar" style="width: 86%;"></div>
+                <div class="meter-bar" id="resultTechBar" style="width: 0%;"></div>
               </div>
             </div>
 
             <div class="score-metric-item">
               <div class="metric-head">
-                <span class="metric-label">Communication &amp; Clarity</span>
-                <span class="metric-score" id="resultCommScore">8.0 / 10</span>
+                <span class="metric-label">Answer Relevance &amp; Completeness (25%)</span>
+                <span class="metric-score" id="resultRelevanceScore">-- / 10</span>
               </div>
               <div class="result-meter">
-                <div class="meter-bar" id="resultCommBar" style="width: 80%;"></div>
+                <div class="meter-bar" id="resultRelevanceBar" style="width: 0%;"></div>
               </div>
             </div>
 
             <div class="score-metric-item">
               <div class="metric-head">
-                <span class="metric-label">Answer Relevance</span>
-                <span class="metric-score" id="resultRelevanceScore">8.5 / 10</span>
+                <span class="metric-label">Communication &amp; Clarity (20%)</span>
+                <span class="metric-score" id="resultCommScore">-- / 10</span>
               </div>
               <div class="result-meter">
-                <div class="meter-bar" id="resultRelevanceBar" style="width: 85%;"></div>
+                <div class="meter-bar" id="resultCommBar" style="width: 0%;"></div>
               </div>
             </div>
 
             <div class="score-metric-item">
               <div class="metric-head">
-                <span class="metric-label">Eye Contact Alignment</span>
-                <span class="metric-score" id="resultEyeScore">90%</span>
+                <span class="metric-label">Problem-Solving &amp; Logic (15%)</span>
+                <span class="metric-score" id="resultProblemScore">-- / 10</span>
               </div>
               <div class="result-meter">
-                <div class="meter-bar" id="resultEyeBar" style="width: 90%;"></div>
+                <div class="meter-bar" id="resultProblemBar" style="width: 0%;"></div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MediaPipe Computer Vision Telemetry (Completely Separate Assessment) -->
+        <div class="result-telemetry-banner">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="margin: 0; color: #38bdf8; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+              <span>👁️</span> MediaPipe Computer Vision Analysis (Non-Verbal)
+            </h4>
+            <span class="badge-status" id="resultTrackingReliability" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+              RELIABILITY: --
+            </span>
+          </div>
+
+          <div class="telemetry-grid">
+            <div class="telemetry-item">
+              <div class="telemetry-label">Eye Contact</div>
+              <div class="telemetry-value" id="resultEyeContactVal">--</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-label">Face Presence</div>
+              <div class="telemetry-value" id="resultFacePresenceVal">--</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-label">Head Stability</div>
+              <div class="telemetry-value" id="resultHeadStabilityVal">--</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-label">Posture Alignment</div>
+              <div class="telemetry-value" id="resultHeadOrientationVal">--</div>
+            </div>
+          </div>
+
+          <div class="telemetry-note" id="resultBehavioralSummary">
+            MediaPipe video telemetry observations will appear here.
+          </div>
+
+          <!-- Observable Emotional Indicators -->
+          <div style="border-top: 1px solid rgba(56, 189, 248, 0.15); padding-top: 12px;">
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em;">
+              Observable Behavioral Indicators
+            </div>
+            <div class="behavioral-badges-row">
+              <div class="behavioral-badge low" id="resultConfidenceBadge">Confidence: --</div>
+              <div class="behavioral-badge low" id="resultAnxietyBadge">Anxiety: --</div>
+              <div id="resultFearIndicators" style="font-size: 0.8125rem; color: var(--text-muted);">No fear-related movement detected</div>
             </div>
           </div>
         </div>
@@ -1192,9 +1266,7 @@
               <h3 class="insight-title">Demonstrated Strengths</h3>
             </div>
             <ul class="insight-list" id="resultStrengthsList">
-              <li>Comprehensive explanation of foundational concepts</li>
-              <li>Clear articulation of architectural trade-offs</li>
-              <li>Steady eye contact and composed physical delivery</li>
+              <!-- Dynamically populated -->
             </ul>
           </div>
 
@@ -1204,11 +1276,20 @@
               <h3 class="insight-title">Areas to Improve</h3>
             </div>
             <ul class="insight-list" id="resultImprovementsList">
-              <li>Provide more production edge-case code samples</li>
-              <li>Structure answers using concise problem-solution framing</li>
-              <li>Refine database indexing explanation under high concurrency</li>
+              <!-- Dynamically populated -->
             </ul>
           </div>
+        </div>
+
+        <!-- Actionable Recommendations -->
+        <div class="insight-box" style="background: var(--secondary); border: 1px solid var(--border); border-left: 3px solid var(--primary); padding: 20px; border-radius: var(--radius-sm);">
+          <div class="insight-header">
+            <span class="insight-icon" style="color: var(--primary);">💡</span>
+            <h3 class="insight-title">Actionable Preparation Advice</h3>
+          </div>
+          <ul class="insight-list" id="resultRecommendationsList">
+            <!-- Dynamically populated -->
+          </ul>
         </div>
 
         <!-- Question-by-Question Diagnostic Breakdown -->
@@ -1237,6 +1318,66 @@
     </div>
   </div>
 
+  <!-- Evaluating Overlay Loading State -->
+  <div class="evaluating-overlay" id="evaluatingOverlay" hidden>
+    <div class="evaluating-modal-box" id="evaluatingModalBox">
+      <!-- Loading State View -->
+      <div id="evaluatingLoadingContent">
+        <div class="evaluating-spinner" id="evaluatingSpinner"></div>
+        <h3 id="evaluatingTitle" style="margin: 0 0 8px 0; color: #f8fafc; font-size: 1.25rem; font-weight: 600;">
+          Analyzing your interview responses...
+        </h3>
+        <p id="evaluatingSubtitle" style="margin: 0 0 16px 0; color: #94a3b8; font-size: 0.875rem; line-height: 1.5;">
+          Our AI evaluator is synthesizing your technical answers and MediaPipe behavioral telemetry.
+        </p>
+
+        <!-- Multi-Stage Progress Indicator List -->
+        <div class="evaluating-stages-list" id="evaluatingStagesList">
+          <div class="eval-stage-item" id="evalStage1">
+            <span class="stage-icon">⏳</span>
+            <span class="stage-text">1. Collecting interview responses</span>
+          </div>
+          <div class="eval-stage-item" id="evalStage2">
+            <span class="stage-icon">⏳</span>
+            <span class="stage-text">2. Validating MediaPipe telemetry</span>
+          </div>
+          <div class="eval-stage-item" id="evalStage3">
+            <span class="stage-icon">⏳</span>
+            <span class="stage-text">3. Evaluating technical depth &amp; relevance</span>
+          </div>
+          <div class="eval-stage-item" id="evalStage4">
+            <span class="stage-icon">⏳</span>
+            <span class="stage-text">4. Synthesizing feedback &amp; improvement areas</span>
+          </div>
+          <div class="eval-stage-item" id="evalStage5">
+            <span class="stage-icon">⏳</span>
+            <span class="stage-text">5. Compiling your final scorecard</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Failure / Retry State View (Hidden by default) -->
+      <div id="evaluatingErrorContent" class="evaluating-error-content" hidden style="display: none;">
+        <div class="evaluating-error-icon">⚠️</div>
+        <h3 class="evaluating-error-title" id="evaluatingErrorTitle">Evaluation Request Timeout</h3>
+        <p class="evaluating-error-desc" id="evaluatingErrorMessage">
+          The evaluation server took longer than expected to compile your scorecard. Your responses and session telemetry have been safely saved.
+        </p>
+        <div class="evaluating-error-actions">
+          <button type="button" class="btn btn-primary" id="evalRetryBtn" style="min-width: 155px;">
+            🔄 Retry Evaluation
+          </button>
+          <button type="button" class="btn btn-secondary" id="evalReturnBtn" style="min-width: 155px;">
+            📋 Return to Interview Workstation
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MediaPipe CDN Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 
   <!-- Client Scripts loaded after full DOM parsing -->
   <script src="./JS/auth.js"></script>

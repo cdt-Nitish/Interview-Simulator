@@ -26,6 +26,10 @@ Here is what is actively happening across the system:
 4. **Interactive Workstation & Vision Telemetry HUD:**
    - Live browser webcam streaming (`JS/camera.js`) with visual targeting bounding boxes and eye gaze tracking HUD.
    - Real-time question progression, answer submission, and feedback persistence (`JS/interview.js`).
+5. **Multimodal AI Behavioral Analysis Pipeline:**
+   - Dual-input evaluation engine (`Backend/prompts/behavioralPrompt.js` & `Backend/services/qwenService.js`) combining speech-to-text verbal transcripts with MediaPipe non-verbal telemetry.
+   - Rigorous evaluation of Confidence (score 1-10), Anxiety (Low/Medium/High), and detected Fear indicators with strict ethical guardrails (non-diagnostic, observable behaviors only, inconclusive fallback for missing sensor data).
+   - Dedicated REST API endpoints: `POST /api/interviews/behavior/analyze` and `POST /api/interviews/:interviewId/behavior/analyze`.
 
 ---
 
@@ -41,7 +45,7 @@ Here is what is actively happening across the system:
 | **1. Frontend UI/UX & Responsive Layouts** | ✅ Complete | **98%** | Multi-section landing page, candidate setup modals, fullscreen workstation console, vision HUD telemetry, responsive dark-theme design (`css/style.css`). |
 | **2. Authentication & Session Security** | ✅ Complete | **100%** | Express session with MySQL store, bcrypt password hashing, login/register modals + standalone page (`frontend/login.html`), session guard (`authMiddleware.js`), `/api/auth/me`. |
 | **3. Database Architecture (MySQL 8.0+)** | ✅ Complete | **100%** | 6 relational tables (`users`, `interviews`, `questions`, `answers`, `interview_metrics`, `sessions`), foreign-key cascades, parameterized queries in `Backend/models/`. |
-| **4. AI Integration (Qwen via Ollama)**| ✅ Complete | **95%** | `Backend/services/qwenService.js` and `interviewController.js` completed with `/api/interviews/start`, `/generate`, and `/evaluate`. Resilient fallback chain (Primary `qwen3:4b` ➔ Fast `qwen3:1.7b` ➔ Curated technical repository) eliminates 500 timeouts completely. |
+| **4. AI Integration (Qwen via Ollama)**| ✅ Complete | **98%** | `Backend/services/qwenService.js` and `interviewController.js` completed with `/api/interviews/start`, `/generate`, `/evaluate`, and multimodal `/behavior/analyze`. Incorporates the full Behavioral Analysis prompt engine with confidence scoring, anxiety evaluation, fear detection, and resilient fallback. |
 | **5. Interview Workstation & Progression** | ✅ Complete | **95%** | `JS/interview.js` wired with direct `#questionDisplay` DOM binding, word/char counters, loading states ("Evaluating..."), real-time score/strengths feedback box, and final diagnostic modal mapping. |
 | **6. Computer Vision & MediaPipe Telemetry** | 🔄 In Progress | **75%** | Real-time camera stream (`getUserMedia`), toggle controls, crosshair HUD overlay. Gracefully catches `NotReadableError: Device in use` with clear user alert and fallback text. |
 | **7. End-to-End Testing & Deployment** | ✅ Complete | **85%** | Automated end-to-end test script (`test-api.js`) verifying login session, interview initialization, question generation, and answer evaluation against MySQL & Ollama with 100% pass rate. |
